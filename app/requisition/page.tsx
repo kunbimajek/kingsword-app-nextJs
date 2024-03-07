@@ -1,7 +1,5 @@
 "use client"; // This is a client component
 
-// components/RegisterForm.tsx
-
 import { useState, ChangeEvent, FormEvent } from "react";
 import styles from "../styles/requisitionFormStyles.module.css"; // Import CSS module
 import { stripIndexFromString } from "../util/requisitionForm";
@@ -26,9 +24,7 @@ export default function RegisterForm() {
     e: ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
   ) => {
     const { name, value } = e.target;
-    console.log(name, value);
     const cleanedName = stripIndexFromString(name);
-    console.log(cleanedName)
     setFormDataList((prevState) => {
       const updatedFormDataList = [...prevState];
       updatedFormDataList[index] = {

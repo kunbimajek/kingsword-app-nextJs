@@ -1,49 +1,62 @@
 "use client";
 
-import { useState } from "react";
+import { FormEvent, useState } from "react";
 
 interface UploadData {
-    startDate: string|null;
-    endDate: string|null;
-    date: string|null;
-    file: File|null;
-  }
+  startDate: string;
+  endDate: string;
+  date: string;
+  file: File | null;
+}
 
 export const FirstTimerUploadForm: React.FC = () => {
-  const [startDate, setStartDate] = useState<string>("");
-  const [endDate, setEndDate] = useState<string>("");
-  const [file, setFile] = useState<File | null>(null);
-
-  
-  const [formData, setFileData] = useState <UploadData> ({
-    startDate: null,
-    endDate: null,
-    date: null,
+  const [formData, setFormData] = useState<UploadData>({
+    startDate: "",
+    endDate: "",
+    date: "",
     file: null,
-  })
-
-    
-  }
+  });
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    
-    setStartDate(e.target.value);
+    const { name, value, files } = e.target;
+    setFormData((prevState) => ({
+      ...prevState,
+      [name]: name === 'file' ? (files ? files[0] : null) : value,
+    }));
   };
 
-  const handleEndDateChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setEndDate(e.target.value);
-  };
+  const handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+    try {
+      const url = "http://localhost:6000/api/v1/uploads/firstTimerMessage";
+      const formDataToSend = new FormData();
+      formDataToSend.append("startDate", formData.startDate);
+      formDataToSend.append("endDate", formData.endDate);
+      formDataToSend.append("date", formData.date);
+      if (formData.file) {
+        formDataToSend.append("file", formData.file);
+      }
 
-  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const files = e.target.files;
-    if (files && files.length > 0) {
-      setFile(files[0]);
+      const response = await fetch(url, {
+        method: "POST",
+        body: formDataToSend,
+      });
+
+      console.log("response", response);
+
+      if (!response.ok) {
+        throw new Error("Network response was not ok");
+      }
+
+      console.log("Data sent successfully!");
+    } catch (error) {
+      console.error("Failed to send:", error);
     }
   };
 
   return (
     <div className="max-w-md mx-auto">
-      <form className="space-y-6">
+      <form className="space-y-6" onSubmit={handleSubmit}>
         <div>
           <label
             htmlFor="startDate"
@@ -55,9 +68,9 @@ export const FirstTimerUploadForm: React.FC = () => {
             id="startDate"
             name="startDate"
             type="date"
-            value={startDate}
-            onChange={handleStartDateChange}
-            className={"input"}
+            value={formData.startDate}
+            onChange={handleInputChange}
+            className="input"
           />
         </div>
         <div>
@@ -71,14 +84,14 @@ export const FirstTimerUploadForm: React.FC = () => {
             id="endDate"
             name="endDate"
             type="date"
-            value={endDate}
-            onChange={handleEndDateChange}
+            value={formData.endDate}
+            onChange={handleInputChange}
             className="input"
           />
         </div>
         <div>
           <label
-            htmlFor="endDate"
+            htmlFor="date"
             className="block text-sm font-medium text-gray-700"
           >
             Actual Date
@@ -87,8 +100,8 @@ export const FirstTimerUploadForm: React.FC = () => {
             id="date"
             name="date"
             type="date"
-            value={endDate}
-            onChange={handleEndDateChange}
+            value={formData.date}
+            onChange={handleInputChange}
             className="input"
           />
         </div>
@@ -107,21 +120,20 @@ export const FirstTimerUploadForm: React.FC = () => {
               <span>Choose a file</span>
               <input
                 id="file-upload"
-                name="file-upload"
+                name="file"
                 type="file"
                 className="sr-only"
-                onChange={handleFileChange}
+                onChange={handleInputChange}
               />
             </label>
             <p className="pl-1">or drag and drop</p>
           </div>
         </div>
-        {file && <p>Selected file: {file.name}</p>}
+        {formData.file && (
+          <p className="input">Selected file: {formData.file.name}</p>
+        )}
         <div>
-          <button
-            type="submit"
-            className="w-full flex justify-center py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
-          >
+          <button type="submit" className="globalBtn">
             Submit
           </button>
         </div>

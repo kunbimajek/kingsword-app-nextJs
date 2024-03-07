@@ -19,8 +19,8 @@ export const Aside = () => {
             </Link>
           </li>
           <li>
-            <Link href="/admin/products">
-              <div className="block py-2 px-4 hover:bg-gray-700">Products</div>
+            <Link href="/requisition">
+              <div className="block py-2 px-4 hover:bg-gray-700">Requisition</div>
             </Link>
           </li>
         </ul>
