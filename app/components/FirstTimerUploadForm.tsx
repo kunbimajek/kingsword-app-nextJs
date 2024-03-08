@@ -1,6 +1,6 @@
-"use client";
+// "use client";
 
-import { FormEvent, useState } from "react";
+import { FormEvent } from "react";
 
 interface UploadData {
   startDate: string;
@@ -10,53 +10,26 @@ interface UploadData {
 }
 
 export const FirstTimerUploadForm: React.FC = () => {
-  const [formData, setFormData] = useState<UploadData>({
-    startDate: "",
-    endDate: "",
-    date: "",
-    file: null,
-  });
 
-  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const { name, value, files } = e.target;
-    setFormData((prevState) => ({
-      ...prevState,
-      [name]: name === 'file' ? (files ? files[0] : null) : value,
-    }));
-  };
-
-  const handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
-    e.preventDefault();
-    try {
-      const url = "http://localhost:6000/api/v1/uploads/firstTimerMessage";
-      const formDataToSend = new FormData();
-      formDataToSend.append("startDate", formData.startDate);
-      formDataToSend.append("endDate", formData.endDate);
-      formDataToSend.append("date", formData.date);
-      if (formData.file) {
-        formDataToSend.append("file", formData.file);
-      }
-
-      const response = await fetch(url, {
+  const postFormData = async (data: FormData) => {
+    "use server";
+    console.log("data", data);
+    const response = await fetch(
+      "http://localhost:6000/api/v1/uploads/firstTimerMessage",
+      {
         method: "POST",
-        body: formDataToSend,
-      });
-
-      console.log("response", response);
-
-      if (!response.ok) {
-        throw new Error("Network response was not ok");
+        body: data,
+        headers: {
+          "Content-Type": "multipart/form-data",
+        },
       }
-
-      console.log("Data sent successfully!");
-    } catch (error) {
-      console.error("Failed to send:", error);
-    }
+    );
+    console.log("response", response);
   };
 
   return (
     <div className="max-w-md mx-auto">
-      <form className="space-y-6" onSubmit={handleSubmit}>
+      <form className="space-y-6" action={postFormData}>
         <div>
           <label
             htmlFor="startDate"
@@ -68,8 +41,6 @@ export const FirstTimerUploadForm: React.FC = () => {
             id="startDate"
             name="startDate"
             type="date"
-            value={formData.startDate}
-            onChange={handleInputChange}
             className="input"
           />
         </div>
@@ -80,14 +51,7 @@ export const FirstTimerUploadForm: React.FC = () => {
           >
             End Date
           </label>
-          <input
-            id="endDate"
-            name="endDate"
-            type="date"
-            value={formData.endDate}
-            onChange={handleInputChange}
-            className="input"
-          />
+          <input id="endDate" name="endDate" type="date" className="input" />
         </div>
         <div>
           <label
@@ -96,14 +60,7 @@ export const FirstTimerUploadForm: React.FC = () => {
           >
             Actual Date
           </label>
-          <input
-            id="date"
-            name="date"
-            type="date"
-            value={formData.date}
-            onChange={handleInputChange}
-            className="input"
-          />
+          <input id="date" name="date" type="date" className="input" />
         </div>
         <div>
           <label
@@ -123,15 +80,15 @@ export const FirstTimerUploadForm: React.FC = () => {
                 name="file"
                 type="file"
                 className="sr-only"
-                onChange={handleInputChange}
+                required
               />
             </label>
             <p className="pl-1">or drag and drop</p>
           </div>
         </div>
-        {formData.file && (
+        {/* {formData.file && (
           <p className="input">Selected file: {formData.file.name}</p>
-        )}
+        )} */}
         <div>
           <button type="submit" className="globalBtn">
             Submit
