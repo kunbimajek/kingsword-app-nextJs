@@ -1,6 +1,7 @@
-// "use client";
+"use client";
 
 import { FormEvent } from "react";
+import { useState } from "react";
 
 interface UploadData {
   startDate: string;
@@ -10,15 +11,34 @@ interface UploadData {
 }
 
 export const FirstTimerUploadForm: React.FC = () => {
+  const [formData, setFormData] = useState<UploadData>({
+    startDate: "",
+    endDate: "",
+    date: "",
+    file: null,
+  });
 
-  const postFormData = async (data: FormData) => {
+  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setFormData({ ...formData, [e.target.name]: e.target.value });
+  };
+
+  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    if (e.target.files) {
+      setFormData({ ...formData, file: e.target.files[0] });
+    }
+    console.log(e.target.files, "files")
+  };
+
+  const postFormData = async (event: FormEvent) => {
+    event.preventDefault();
+
     "use server";
-    console.log("data", data);
+    console.log("data", formData);
     const response = await fetch(
       "http://localhost:6000/api/v1/uploads/firstTimerMessage",
       {
         method: "POST",
-        body: data,
+        body: JSON.stringify(formData),
         headers: {
           "Content-Type": "multipart/form-data",
         },
@@ -29,7 +49,7 @@ export const FirstTimerUploadForm: React.FC = () => {
 
   return (
     <div className="max-w-md mx-auto">
-      <form className="space-y-6" action={postFormData}>
+      <form className="space-y-6" onSubmit={postFormData}>
         <div>
           <label
             htmlFor="startDate"
@@ -42,6 +62,8 @@ export const FirstTimerUploadForm: React.FC = () => {
             name="startDate"
             type="date"
             className="input"
+            value={formData.startDate}
+            onChange={handleInputChange}
           />
         </div>
         <div>
@@ -51,7 +73,14 @@ export const FirstTimerUploadForm: React.FC = () => {
           >
             End Date
           </label>
-          <input id="endDate" name="endDate" type="date" className="input" />
+          <input
+            id="endDate"
+            name="endDate"
+            type="date"
+            className="input"
+            value={formData.endDate}
+            onChange={handleInputChange}
+          />
         </div>
         <div>
           <label
@@ -60,7 +89,14 @@ export const FirstTimerUploadForm: React.FC = () => {
           >
             Actual Date
           </label>
-          <input id="date" name="date" type="date" className="input" />
+          <input
+            id="date"
+            name="date"
+            type="date"
+            className="input"
+            value={formData.date}
+            onChange={handleInputChange}
+          />
         </div>
         <div>
           <label
@@ -81,6 +117,7 @@ export const FirstTimerUploadForm: React.FC = () => {
                 type="file"
                 className="sr-only"
                 required
+                onChange={handleFileChange}
               />
             </label>
             <p className="pl-1">or drag and drop</p>
